@@ -1,5 +1,5 @@
 angular.module("ion-datetime-picker", ["ionic"])
-  .directive("ionDatetimePicker", function() {
+  .directive("ionDatetimePicker", function () {
     return {
       restrict: "AE",
       require: "ngModel",
@@ -15,7 +15,7 @@ angular.module("ion-datetime-picker", ["ionic"])
         secondStep: "=?",
         onlyValid: "=?"
       },
-      controller: function($scope, $ionicPopup, $ionicPickerI18n, $timeout) {
+      controller: function ($scope, $ionicPopup, $ionicPickerI18n, $timeout) {
         $scope.i18n = $ionicPickerI18n;
         $scope.bind = {};
 
@@ -31,14 +31,17 @@ angular.module("ion-datetime-picker", ["ionic"])
           minute: $scope.minute,
           second: $scope.second,
           date: new Date(),
-          getDateWithoutTime: function() {
+          getDateWithoutTime: function () {
             var tempDate = new Date(this.date);
             tempDate.setHours(0, 0, 0, 0, 0);
             return tempDate;
           }
         };
 
-        $scope.showPopup = function() {
+        $scope.showPopup = function () {
+          $timeout(function () {
+            $scope.processModel();
+          }, 200);
           $ionicPopup.show({
             templateUrl: "lib/ion-datetime-picker/src/picker-popup.html",
             title: $scope.title || ("Pick " + ($scope.dateEnabled ? "a date" : "") + ($scope.dateEnabled && $scope.timeEnabled ? " and " : "") + ($scope.timeEnabled ? "a time" : "")),
@@ -49,14 +52,14 @@ angular.module("ion-datetime-picker", ["ionic"])
               {
                 text: $scope.buttonOk || $scope.i18n.ok,
                 type: $scope.i18n.okClass,
-                onTap: function() {
+                onTap: function () {
                   $scope.commit();
                 }
               }, {
                 text: $scope.buttonCancel || $scope.i18n.cancel,
                 type: $scope.i18n.cancelClass,
-                onTap: function() {
-                  $timeout(function() {
+                onTap: function () {
+                  $timeout(function () {
                     $scope.processModel();
                   }, 200);
                 }
@@ -65,13 +68,13 @@ angular.module("ion-datetime-picker", ["ionic"])
           });
         };
 
-        $scope.prepare = function() {
+        $scope.prepare = function () {
           if ($scope.mondayFirst) {
             $scope.weekdays.push($scope.weekdays.shift());
           }
         };
 
-        $scope.processModel = function() {
+        $scope.processModel = function () {
           var date = $scope.modelDate instanceof Date ? $scope.modelDate : new Date();
           $scope.year = $scope.dateEnabled ? date.getFullYear() : 0;
           $scope.month = $scope.dateEnabled ? date.getMonth() : 0;
@@ -113,7 +116,7 @@ angular.module("ion-datetime-picker", ["ionic"])
           }
         }
 
-        var changeViewData = function() {
+        var changeViewData = function () {
           setLastValidDate();
           var date = new Date($scope.year, $scope.month, $scope.day, $scope.hour, $scope.minute, $scope.second);
 
@@ -145,11 +148,11 @@ angular.module("ion-datetime-picker", ["ionic"])
           }
         };
 
-        var getDaysInMonth = function(year, month) {
+        var getDaysInMonth = function (year, month) {
           return new Date(year, month + 1, 0).getDate();
         };
 
-        $scope.changeBy = function(value, unit) {
+        $scope.changeBy = function (value, unit) {
           if (+value) {
             // DST workaround
             if ((unit === "hour" || unit === "minute") && value === -1) {
@@ -165,7 +168,7 @@ angular.module("ion-datetime-picker", ["ionic"])
             changeViewData();
           }
         };
-        $scope.change = function(unit) {
+        $scope.change = function (unit) {
           var value = $scope.bind[unit];
           if (value && unit === "meridiem") {
             value = value.toUpperCase();
@@ -183,7 +186,7 @@ angular.module("ion-datetime-picker", ["ionic"])
             changeViewData();
           }
         };
-        $scope.changeDay = function(day) {
+        $scope.changeDay = function (day) {
           $scope.day = day;
           changeViewData();
         };
@@ -198,7 +201,7 @@ angular.module("ion-datetime-picker", ["ionic"])
           return date;
         }
 
-        $scope.isEnabled = function(day, computeNextValidDate) {
+        $scope.isEnabled = function (day, computeNextValidDate) {
           if (!$scope.onlyValid) {
             return true;
           }
@@ -277,14 +280,14 @@ angular.module("ion-datetime-picker", ["ionic"])
           return isValid
 
         };
-        $scope.changed = function() {
+        $scope.changed = function () {
           changeViewData();
         };
 
         if ($scope.dateEnabled) {
-          $scope.$watch(function() {
+          $scope.$watch(function () {
             return new Date().getDate();
-          }, function() {
+          }, function () {
             var today = new Date();
             $scope.today = {
               day: today.getDate(),
@@ -301,7 +304,7 @@ angular.module("ion-datetime-picker", ["ionic"])
           //                    };
         }
       },
-      link: function($scope, $element, $attrs, ngModelCtrl) {
+      link: function ($scope, $element, $attrs, ngModelCtrl) {
         $scope.dateEnabled = "date" in $attrs && $attrs.date !== "false";
         $scope.timeEnabled = "time" in $attrs && $attrs.time !== "false";
         if ($scope.dateEnabled === false && $scope.timeEnabled === false) {
@@ -319,12 +322,12 @@ angular.module("ion-datetime-picker", ["ionic"])
 
         $scope.prepare();
 
-        ngModelCtrl.$render = function() {
+        ngModelCtrl.$render = function () {
           $scope.modelDate = ngModelCtrl.$viewValue;
           $scope.processModel();
         };
 
-        $scope.commit = function() {
+        $scope.commit = function () {
           $scope.modelDate = new Date($scope.year, $scope.month, $scope.day, $scope.hour, $scope.minute, $scope.second);
           ngModelCtrl.$setViewValue($scope.modelDate);
         };
